@@ -1,0 +1,1 @@
+This project calculates customer churn rate.
