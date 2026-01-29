@@ -1,109 +1,139 @@
 # Customer Churn Analysis (Video Streaming Subscription)
 
-## Overview
-This project predicts whether a customer will churn from a video streaming subscription service. The focus is on building interpretable models that can both identify at risk customers and explain what drives churn, so that product and retention teams can take action.
+Predict whether a customer will churn (cancel) from a video streaming subscription, using interpretable models (Logistic Regression and Decision Tree) and evaluation focused on **sensitivity/recall** for churners.
 
-## Problem statement
-Customer churn is when a subscriber cancels their relationship with a service. Predicting churn enables proactive retention strategies, better customer experience, and more efficient resource allocation.
+---
 
-## Dataset
-Source: Kaggle dataset titled Predictive Analytics for Customer Churn (streaming service).
-Size and shape:
-• Training set: 243,787 customer records with 21 columns, including the churn target  
-• Test set: features only (no churn column), not used for modeling  
-Data quality:
-• No missing values and no duplicate records reported
+## Project highlights
+- **Dataset:** 243,787 customer records (train), 21 columns, clean (no missing values / duplicates)
+- **Class imbalance:** ~18% churners
+- **Models:** Logistic Regression (scaled + one hot encoding) and CART Decision Tree
+- **Key technique:** Oversampling to 50/50 churn vs non churn in training to improve churn recall
+- **Best model:** Oversampled Logistic Regression (Accuracy 0.68, Precision 0.32, Sensitivity 0.70, ROC AUC 0.75)
 
-Target:
-• Churn (1 or 0), whether the customer churned
+---
 
-Feature groups:
-• Numeric: AccountAge, MonthlyCharges, TotalCharges, ViewingHoursPerWeek, AverageViewingDuration, ContentDownloadsPerMonth, SupportTicketsPerMonth, UserRating, WatchlistSize  
-• Categorical: SubscriptionType, PaymentMethod, PaperlessBilling, ContentType, MultiDeviceAccess, DeviceRegistered, GenrePreference, Gender, ParentalControl, SubtitlesEnabled
+## Business problem
+Customer churn (attrition) directly impacts subscription revenue. Predicting churn enables targeted retention actions and prioritizes outreach for customers most at risk.
 
-## Approach
-1. Exploratory data analysis
-• Compared churned vs retained customers across categorical and numeric variables  
-• Built a correlation heatmap to understand relationships between features  
-• Found engagement metrics and account age were most informative for churn risk signals
+---
 
-2. Modeling choices
-I prioritized interpretability to connect model outputs to actionable recommendations:
-• Logistic Regression  
-• Decision Tree (CART with gini impurity)
+## Data
+**Source:** Kaggle — “Predictive Analytics for Customer Churn” (streaming service)
 
-3. Preprocessing and evaluation
-• Train test split: 80 percent train, 20 percent test  
-• One hot encoding for categorical variables  
-• Min max scaling for numeric features in logistic regression to improve coefficient interpretability  
-• Class imbalance handling: oversampling the training data to a 50 50 churn vs non churn ratio to improve sensitivity (recall) for churn cases
+**Target**
+- `Churn` (1/0): whether the customer churned
+
+**Numeric features (examples)**
+- AccountAge, MonthlyCharges, TotalCharges
+- ViewingHoursPerWeek, AverageViewingDuration
+- ContentDownloadsPerMonth, SupportTicketsPerMonth, UserRating, WatchlistSize
+
+**Categorical features (examples)**
+- SubscriptionType, PaymentMethod, PaperlessBilling, ContentType
+- MultiDeviceAccess, DeviceRegistered, GenrePreference
+- Gender, ParentalControl, SubtitlesEnabled
+
+---
+
+## Methodology
+### 1) Exploratory Data Analysis
+- Distribution checks for categorical and numeric features
+- Correlation heatmap (notable correlation: AccountAge and TotalCharges)
+- Layered churn vs non churn histograms indicated strong signals from engagement and account age
+
+### 2) Modeling
+**Why interpretable models?**
+The end goal is not just prediction — it is to explain *why* customers churn so a business can act.
+
+- Logistic Regression
+  - Min max scaling for numeric features to improve coefficient interpretability
+  - One hot encoding (drop one level to avoid dummy trap)
+- Decision Tree
+  - CART with gini impurity
+  - Grid search and early stopping to reduce overfitting
+
+### 3) Handling class imbalance
+Initial models had low churn sensitivity due to imbalance. We oversampled the training set to a **50/50** churn vs non churn split to increase sensitivity for churn cases.
+
+---
 
 ## Results
-Baseline models on original data tended to have low sensitivity, which is expected with an imbalanced target.
+### Logistic Regression
+- **Before oversampling:** Accuracy 0.83, Precision 0.57, Sensitivity 0.12
+- **After oversampling (preferred):** Accuracy 0.68, Precision 0.32, Sensitivity 0.70
 
-Preferred model: oversampled Logistic Regression  
-• Accuracy: 0.68  
-• Precision: 0.32  
-• Sensitivity (recall): 0.70  
-• ROC AUC: 0.75
+Top drivers from coefficients (directional):
+- Lower AccountAge (newer accounts churn more)
+- Lower engagement: AverageViewingDuration, ViewingHoursPerWeek, ContentDownloadsPerMonth
+- Higher MonthlyCharges
+- Higher SupportTicketsPerMonth
 
-Oversampled Decision Tree  
-• Accuracy: 0.64  
-• Precision: 0.29  
-• Sensitivity (recall): 0.69  
-• ROC AUC: 0.72
+### Decision Tree
+- **Before oversampling:** Accuracy 0.82, Precision 0.53, Sensitivity 0.07
+- **After oversampling:** Accuracy 0.64, Precision 0.29, Sensitivity 0.69
 
-## Key drivers of churn
-Across models, the strongest churn indicators were consistent:
-• Lower AccountAge (newer accounts churn more)  
-• Lower engagement: AverageViewingDuration, ViewingHoursPerWeek, ContentDownloadsPerMonth  
-• Higher MonthlyCharges  
-• Higher SupportTicketsPerMonth
+The churn rule region identified by the tree aligns with the same story:
+younger accounts + low engagement + higher monthly charges are most likely to churn.
 
-## Business recommendations
-• Focus retention campaigns on newer subscribers with low engagement signals  
-• Improve early lifecycle onboarding and content discovery to increase viewing time and downloads  
-• Consider targeted discounts or trials for high monthly charge customers early in their lifecycle  
-• Use support ticket frequency as a risk flag for proactive outreach
+### ROC AUC
+- Oversampled Logistic Regression: **0.75**
+- Oversampled Decision Tree: **0.72**
+
+---
+
+## Recommendations
+- Prioritize retention for **newer accounts** showing **low engagement** signals
+- Strengthen early lifecycle onboarding and content discovery to increase viewing hours and session duration
+- Consider targeted discounts or offers for high monthly charge customers early in tenure
+- Use support ticket volume as a risk flag for proactive support
+
+---
 
 ## Repository contents
-Core notebooks:
-• churn_data_exploration.ipynb  
-• churn_Logistic_Regression.ipynb  
-• churn_decision_tree.ipynb  
+Notebooks
+- `churn_data_exploration.ipynb`
+- `churn_Logistic_Regression.ipynb`
+- `churn_decision_tree.ipynb`
 
-Supporting files:
-• data_descriptions.csv  
-• AML Project Proposal (pdf)  
-• Final Project Report (pdf)  
-• Presentation deck (pptx)
+Docs
+- `AML Project Proposal - churn dataset.pdf`
+- `AML Group 5 Final Project.pdf`
+- `AIML PPT.pptx`
 
-Suggested organization:
-docs/
-  AML Project Proposal - churn dataset.pdf
-  AML Group 5 Final Project.pdf
-  AIML PPT.pptx
+Data dictionary
+- `data_descriptions.csv`
+
+Suggested repo structure
+```
 notebooks/
   churn_data_exploration.ipynb
   churn_Logistic_Regression.ipynb
   churn_decision_tree.ipynb
+docs/
+  AML Project Proposal - churn dataset.pdf
+  AML Group 5 Final Project.pdf
+  AIML PPT.pptx
 data/
   data_descriptions.csv
+```
+
+---
 
 ## How to run
 1. Create a Python environment (3.9+ recommended)
-2. Install dependencies
-3. Run notebooks in this order:
-   1) churn_data_exploration.ipynb
-   2) churn_Logistic_Regression.ipynb
-   3) churn_decision_tree.ipynb
+2. Install dependencies:
+   - pandas, numpy
+   - scikit-learn
+   - matplotlib
+   - imbalanced-learn
+   - jupyter
+3. Run notebooks in order:
+   1) churn_data_exploration.ipynb  
+   2) churn_Logistic_Regression.ipynb  
+   3) churn_decision_tree.ipynb  
 
-Typical dependencies:
-• pandas, numpy
-• scikit learn
-• matplotlib
-• imbalanced learn (for oversampling)
-• jupyter
+---
 
-## Credits
-Group 5: Valerie Garcia, Patrick Gervadis Ninan, Albin Poulose, Srivani Kakumani, Ashiq Mohammed Al Ameen
+## Team
+Valerie Garcia, Patrick Gervadis Ninan, Albin Poulose, Srivani Kakumani, Ashiq Mohammed Al Ameen
