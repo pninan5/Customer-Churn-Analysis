@@ -9,7 +9,7 @@ Predict whether a customer will churn (cancel) from a video streaming subscripti
 - **Class imbalance:** ~18% churners
 - **Models:** Logistic Regression (scaled + one hot encoding) and CART Decision Tree
 - **Key technique:** Oversampling to 50/50 churn vs non churn in training to improve churn recall
-- **Best model:** Oversampled Logistic Regression (Accuracy 0.68, Precision 0.32, Sensitivity 0.70, ROC AUC 0.84)
+- **Best model:** Logistic Regression (Accuracy 0.68, Precision 0.32, Sensitivity 0.70, ROC AUC 0.84)
 
 ---
 
