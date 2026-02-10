@@ -76,10 +76,6 @@ Top drivers from coefficients (directional):
 The churn rule region identified by the tree aligns with the same story:
 younger accounts + low engagement + higher monthly charges are most likely to churn.
 
-### ROC AUC
-- Oversampled Logistic Regression: **0.75**
-- Oversampled Decision Tree: **0.72**
-
 ---
 
 ## Recommendations
